@@ -1,6 +1,6 @@
-# Requerimientos — App POS Pizzería
+# Requerimientos — El Hornito POS
 
-**Versión:** 1.2  
+**Versión:** 1.3  
 **Fecha:** Mayo 2026  
 **Stack:** Android (Kotlin) + FastAPI (Python) + PostgreSQL (Supabase)
 
@@ -434,3 +434,78 @@ Formulario con:
 - La foto se sube desde el navegador (archivo desde el dispositivo)
 - Requiere login como dueño
 
+
+---
+
+## 16. Edge cases y comportamiento ante errores
+
+### 16.1 Conectividad
+- Si se va internet mientras se arma un pedido, la app guarda el pedido localmente en SQLite
+- El pedido offline se sincroniza automáticamente cuando vuelve la conexión
+- Si no vuelve internet en 24 horas, el pedido offline se descarta automáticamente
+- Si se va internet justo al tocar "Confirmar cobro", el cobro se guarda localmente y sincroniza después
+- Si hay pedidos pendientes de sincronizar, el empleado puede seguir tomando pedidos normalmente
+- La app muestra un indicador visible cuando está operando sin conexión
+
+### 16.2 Precios y productos
+- Si el dueño cambia el precio de un producto mientras hay un pedido abierto con ese producto, el precio se actualiza automáticamente en el pedido
+- Los precios se guardan en el ítem al momento de confirmar el cobro, para que el historial refleje el precio real cobrado
+- Si se elimina un producto que tenía foto, la imagen desaparece y el producto queda sin imagen en el historial
+- Si un cliente pide un sabor de empanada que no está cargado en el sistema, el empleado no puede agregarlo en el momento — debe usar las notas del ítem o el dueño debe agregar el sabor desde configuración
+
+### 16.3 Datos del pedido
+- Los datos de delivery (nombre, dirección, teléfono) se pueden editar en cualquier momento antes de confirmar el cobro
+- Una vez cobrado el pedido, no se puede modificar — se debe cancelar y crear uno nuevo
+- Cada pedido es independiente, no existe la función de repetir un pedido anterior
+
+### 16.4 Acceso y contraseñas
+- La tablet queda siempre logueada, no hay cierre de sesión automático
+- Si el dueño olvida su contraseña, solo puede recuperarla accediendo directamente a la base de datos en Supabase — no hay recuperación por email en v1
+- El empleado no tiene contraseña propia, opera con la sesión de la tablet
+
+### 16.5 Sincronización de combos y precios offline
+- Cuando la app está offline, usa la última versión del catálogo descargada
+- Al recuperar conexión, el catálogo se actualiza automáticamente
+- Si un combo fue modificado mientras la app estaba offline, el pedido sincroniza con los datos que tenía en ese momento
+
+---
+
+## 17. Diseño visual
+
+### 17.1 Temas
+- La app soporta **tema oscuro** y **tema claro**
+- El usuario lo cambia desde configuración
+- Por defecto: tema oscuro (más cómodo para trabajar de noche en el local)
+
+### 17.2 Colores
+- Color principal (botones, precios, categoría activa): **rojo** `#C0392B`
+- Tema oscuro: fondo `#1E1E1E`, superficies `#2A2A2A`, texto `#EEEEEE`
+- Tema claro: fondo `#F5F5F5`, superficies `#FFFFFF`, texto `#1A1A1A`
+- Indicador de conexión: verde `#27AE60`
+
+### 17.3 Grilla de productos
+- 4 columnas en la carta principal
+- Tarjetas cuadradas y compactas: foto, nombre y precio
+- Tamaño de foto: 44×44px con border-radius
+- Si no tiene foto: color de fondo personalizado por producto
+
+### 17.4 Layout principal
+- Mitad izquierda: carta con pestañas de categorías + grilla de productos
+- Mitad derecha (220px fija): panel del pedido siempre visible
+- Barra inferior: indicador de estado de conexión (online/offline)
+
+### 17.5 Estilo general
+- Bordes finos (0.5px), esquinas redondeadas
+- Sin gradientes ni sombras
+- Tipografía limpia, tamaños pequeños para aprovechar el espacio de la tablet
+- Inspirado en Loyverse: simple, directo, funcional
+
+---
+
+## 18. Nombre e identidad de la app
+
+- **Nombre:** El Hornito POS
+- **Nombre en Play Store:** El Hornito POS
+- **Nombre en la tablet:** El Hornito
+- **Ícono:** horno o pizza en rojo `#C0392B`
+- El nombre refleja el nombre real de la pizzería
